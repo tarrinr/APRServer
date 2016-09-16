@@ -1,0 +1,12 @@
+[DEFAULT]
+ignoreip = home.ip.com
+banaction = iptables-multiport
+backend = systemd
+
+[sshd]
+enabled = true
+port    = ssh
+logpath = %(sshd_log)s
+maxretry = 3
+bantime = 604800
+findtime = 86400
