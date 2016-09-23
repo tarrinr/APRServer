@@ -25,11 +25,16 @@ my $is = new Ham::APRS::IS($IShost, $ISmycall, 'filter' => $ISfilter);
 $is->connect('retryuntil' => 3) or die "Failed to connect: $is->{error}";
 
 while (1){
-  
+
+  if (!$is->connected()) {
+    print "Lost connection\n";
+    $is->connect('retryuntil' => 3) or die "Failed to connect: $is->{error}";
+  }
+
   my $l = $is->getline_noncomment();
 
-  if ($l) {
-  
+  if (defined $l) {
+
     my %packetdata;
     parseaprs($l, \%packetdata);
 
