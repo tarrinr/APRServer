@@ -15,6 +15,7 @@
 		});
 		var infoWindow = new google.maps.InfoWindow;
 		var markers;
+	    	var pin;
 		var currentlast;
 		var last = 0;
 		var length;
@@ -104,10 +105,10 @@
 				path.insertAt(length-i, point);
 
 				if (first == true) {
+						if (typeof pin != "undefined") {pin.setIcon(customIcons["n"]);}
 						map.panTo(point);
 						map.setZoom(18);
 						var icon = customIcons[Icon];
-						first = false;
 				}
 				else {
 						var icon = customIcons["n"];
@@ -121,6 +122,7 @@
 						zIndex: id,
 						optimized: false
 				});
+				if (first == true) {pin = marker; first = false;}
 				bindInfoWindow(marker, map, infoWindow, html);
 			}
 		}
