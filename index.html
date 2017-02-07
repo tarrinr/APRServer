@@ -18,7 +18,6 @@
 		var currentlast;
 		var last = 0;
 		var length;
-		var pin;
 		var flightPath = new google.maps.Polyline({
 			geodesic: true,
 			strokeColor: '#CC0000',
@@ -62,7 +61,7 @@
 		};
 
 		mark();
-		setInterval(function() { mark()}, 5000);
+		setInterval(function() {mark()}, 5000);
 
 		function mark() {
 		
@@ -108,11 +107,10 @@
 						map.panTo(point);
 						map.setZoom(18);
 						var icon = customIcons[Icon];
-						var index = id;
+						first = false;
 				}
 				else {
 						var icon = customIcons["n"];
-						var index = id-currentlast-10;
 				}
 				if (CallsignSSID == "SPOT") {var html =  "<img src='icon.ico' style='vertical-align:bottom;padding:2'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + "</i><br/>" + Comment;}
 				else {var html =  "<img src='icon.ico' style='vertical-align:bottom;padding:2'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + " </i><br/>Altitude: " + Altitude + "m<br/>Speed: " + Speed + " km/h Course: " + Course + "°<br/>" + Comment;}
@@ -120,16 +118,9 @@
 						map: map,
 						position: point,
 						icon: icon,
-						zIndex: index
+						zIndex: id,
+						optimized: false
 				});
-				if (first == true) {
-					if (typeof pin != "undefined") {
-						pin.setIcon(customIcons["n"]);
-						pin.setZIndex(id-currentlast-10);
-					}
-					pin = marker;
-					first = false;
-				}
 				bindInfoWindow(marker, map, infoWindow, html);
 			}
 		}
@@ -176,13 +167,22 @@
 	box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px;
 	cursor: pointer;
       }
+      #floating-panel > select {
+        background-color:#FFF;
+	cursor:pointer;
+	border-color:#FFF;
+	font-family: Roboto,Arial,sans-serif;
+	font-size: 11px;
+	color: rgb(86, 86, 86);
+	outline:none;
+      }
   </style>
   </head>
 
   <body onload="load()" style="height: 100%; margin: 0px">
     <div id="map" style="width: 100%; height: 100%"></div>
     <div id="floating-panel">
-  <select onchange="load(this.value)" style="background-color:#FFF; cursor:pointer; border-color:#FFF; font-family: Roboto,Arial,sans-serif; font-size: 11px; color: rgb(86, 86, 86); outline:none;">
+  <select onchange="load(this.value)">
     <option>Select Channel...</option>
     <option value="KI7FTG" id="KI7FTG" style="display:none;">0 Primary Station</option>
     <option value="KI7FTG-1" id="KI7FTG-1" style="display:none;">1 Generic Station</option>
