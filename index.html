@@ -34,6 +34,12 @@
                                 origin: new google.maps.Point(240, 96),
                                 anchor: new google.maps.Point(12, 12)
                         },
+                        "/{": {
+                                url: 'aprs-symbols-24-0.png',
+                                size: new google.maps.Size(24, 24),
+                                origin: new google.maps.Point(240, 120),
+                                anchor: new google.maps.Point(12, 12)
+                        },
                         "/$": {
                                 url: 'aprs-symbols-24-0.png',
                                 size: new google.maps.Size(24, 24),
@@ -83,12 +89,14 @@
 				if (id == last) {break;}
 				var ReportTime = markers[i].getAttribute("ReportTime");
 				var CallsignSSID = markers[i].getAttribute("CallsignSSID");
+                                document.getElementById(CallsignSSID).style = "display:inline;";
 				if (CallsignSSID != call) {continue;}
 				var Altitude = markers[i].getAttribute("Altitude");
 				var Speed = markers[i].getAttribute("Speed");
 				var Course = markers[i].getAttribute("Course");
 				var Icon = markers[i].getAttribute("Icon");
 				var Comment = markers[i].getAttribute("Comment");
+				if (Comment[0] == 'P') {continue;}
 				var Packet = markers[i].getAttribute("Packet");
 				var point = new google.maps.LatLng(
 					parseFloat(markers[i].getAttribute("Latitude")),
@@ -106,7 +114,8 @@
 						var icon = customIcons["n"];
 						var index = id-currentlast-10;
 				}
-				var html =  "<img src='icon.ico' style='vertical-align:bottom;padding:2'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + " </i><br/>Altitude: " + Altitude + "m<br/>Speed: " + Speed + " km/h Course: " + Course + "°<br/>" + Comment; 
+				if (CallsignSSID == "SPOT") {var html =  "<img src='icon.ico' style='vertical-align:bottom;padding:2'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + "</i><br/>" + Comment;}
+				else {var html =  "<img src='icon.ico' style='vertical-align:bottom;padding:2'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + " </i><br/>Altitude: " + Altitude + "m<br/>Speed: " + Speed + " km/h Course: " + Course + "°<br/>" + Comment;}
 				var marker = new google.maps.Marker({
 						map: map,
 						position: point,
@@ -170,27 +179,28 @@
   </style>
   </head>
 
-  <body onload="load('KI7FTG')" style="height: 100%; margin: 0px">
+  <body onload="load()" style="height: 100%; margin: 0px">
     <div id="map" style="width: 100%; height: 100%"></div>
     <div id="floating-panel">
   <select onchange="load(this.value)" style="background-color:#FFF; cursor:pointer; border-color:#FFF; font-family: Roboto,Arial,sans-serif; font-size: 11px; color: rgb(86, 86, 86); outline:none;">
-    <option value="KI7FTG">0 Primary Station</option>
-    <option value="KI7FTG-1">1 Generic Station</option>
-    <option value="KI7FTG-2">2 Generic Station</option>
-    <option value="KI7FTG-3">3 Generic Station</option>
-    <option value="KI7FTG-4">4 Generic Station</option>
-    <option value="KI7FTG-5">5 Other Network</option>
-    <option value="KI7FTG-6">6 Special Activity</option>
-    <option value="KI7FTG-7">7 Handheld</option>
-    <option value="KI7FTG-8">8 Boat</option>
-    <option value="KI7FTG-9">9 Mobile</option>
-    <option value="KI7FTG-10">10 APRS-IS</option>
-    <option value="KI7FTG-11">11 Aircraft</option>
-    <option value="KI7FTG-12">12 One-way Tracker</option>
-    <option value="KI7FTG-13">13 Weather Station</option>
-    <option value="KI7FTG-14">14 Freight Vehicle</option>
-    <option value="KI7FTG-15">15 Generic Station</option>
-    <option value="SPOT">SPOT Tracker</option>
+    <option>Select Channel...</option>
+    <option value="KI7FTG" id="KI7FTG" style="display:none;">0 Primary Station</option>
+    <option value="KI7FTG-1" id="KI7FTG-1" style="display:none;">1 Generic Station</option>
+    <option value="KI7FTG-2" id="KI7FTG-2" style="display:none;">2 Generic Station</option>
+    <option value="KI7FTG-3" id="KI7FTG-3" style="display:none;">3 Generic Station</option>
+    <option value="KI7FTG-4" id="KI7FTG-4" style="display:none;">4 Generic Station</option>
+    <option value="KI7FTG-5" id="KI7FTG-5" style="display:none;">5 Other Network</option>
+    <option value="KI7FTG-6" id="KI7FTG-6" style="display:none;">6 Special Activity</option>
+    <option value="KI7FTG-7" id="KI7FTG-7" style="display:none;">7 Handheld</option>
+    <option value="KI7FTG-8" id="KI7FTG-8" style="display:none;">8 Boat</option>
+    <option value="KI7FTG-9" id="KI7FTG-9" style="display:none;">9 Mobile</option>
+    <option value="KI7FTG-10" id="KI7FTG-10" style="display:none;">10 APRS-IS</option>
+    <option value="KI7FTG-11" id="KI7FTG-11" style="display:none;">11 Aircraft</option>
+    <option value="KI7FTG-12" id="KI7FTG-12" style="display:none;">12 One-way Tracker</option>
+    <option value="KI7FTG-13" id="KI7FTG-13" style="display:none;">13 Weather Station</option>
+    <option value="KI7FTG-14" id="KI7FTG-14" style="display:none;">14 Freight Vehicle</option>
+    <option value="KI7FTG-15" id="KI7FTG-15" style="display:none;">15 Generic Station</option>
+    <option value="SPOT" id="SPOT" style="display:none;">SPOT Tracker</option>
   </select>
     </div>
   </body>
