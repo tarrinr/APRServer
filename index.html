@@ -96,7 +96,7 @@
 				var Course = markers[i].getAttribute("Course");
 				var Icon = markers[i].getAttribute("Icon");
 				var Comment = markers[i].getAttribute("Comment");
-				if (Comment[0] == 'P') {continue;}
+				if (Comment[0] == 'P' && CallsignSSID == "SPOT") {continue;}
 				var Packet = markers[i].getAttribute("Packet");
 				var point = new google.maps.LatLng(
 					parseFloat(markers[i].getAttribute("Latitude")),
