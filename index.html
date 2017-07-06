@@ -7,9 +7,7 @@
             type="text/javascript"></script>
     <script type="text/javascript">
     //<![CDATA[
-
     function load(call) {
-
 		var map = new google.maps.Map(document.getElementById("map"), {
 			mapTypeId: 'roadmap'
 		});
@@ -27,30 +25,31 @@
 		});
 		var path = flightPath.getPath();
 		flightPath.setMap(map);
+                var anchor = new google.maps.Point(16, 37);
 		var customIcons = {
                         "/k": {
-                                url: 'aprs-symbols-24-0.png',
-                                size: new google.maps.Size(24, 24),
-                                origin: new google.maps.Point(240, 96),
-                                anchor: new google.maps.Point(12, 12)
-                        },
-                        "/{": {
-                                url: 'aprs-symbols-24-0.png',
-                                size: new google.maps.Size(24, 24),
-                                origin: new google.maps.Point(240, 120),
-                                anchor: new google.maps.Point(12, 12)
+                                url: 'icon/pickup.png',
+                                anchor: anchor
                         },
                         "/$": {
-                                url: 'aprs-symbols-24-0.png',
-                                size: new google.maps.Size(24, 24),
-                                origin: new google.maps.Point(72, 0),
-                                anchor: new google.maps.Point(12, 12)
+                                url: 'icon/phones.png',
+                                anchor: anchor
+                        },
+                        "/#": {
+                                url: 'icon/radio-station-2.png',
+                                anchor: anchor
                         },
                         "/[": {
-                                url: 'aprs-symbols-24-0.png',
-                                size: new google.maps.Size(24, 24),
-                                origin: new google.maps.Point(240, 72),
-                                anchor: new google.maps.Point(12, 12)
+                                url: 'icon/male-2.png',
+                                anchor: anchor
+                        },
+                        "/{": {
+                                url: 'icon/satellite-dish.png',
+                                anchor: anchor
+                        },
+                        "u": {
+                                url: 'icon/country.png',
+                                anchor: anchor
                         },
 			"n": {
 				path: google.maps.SymbolPath.CIRCLE,
@@ -60,10 +59,8 @@
 				strokeWeight: 0
 			}
 		};
-
 		mark();
 		setInterval(function() {mark()}, 5000);
-
 		function mark() {
 		
 			downloadUrl("markers.xml?" + Date.now(), function(data) {
@@ -82,7 +79,6 @@
 		
 		function update() {
 		        var first = true;
-
 			for (var i = length; i > -1; i--) {
 			
 				var id = parseInt(markers[i].getAttribute("ID"));
@@ -101,20 +97,19 @@
 				var point = new google.maps.LatLng(
 					parseFloat(markers[i].getAttribute("Latitude")),
 					parseFloat(markers[i].getAttribute("Longitude")));
-
 				path.insertAt(length-i, point);
-
 				if (first == true) {
 						if (typeof pin != "undefined") {pin.setIcon(customIcons["n"]);}
 						map.panTo(point);
 						map.setZoom(18);
 						var icon = customIcons[Icon];
+                                                if (typeof icon == "undefined") {icon = customIcons["u"];}
 				}
 				else {
 						var icon = customIcons["n"];
 				}
-				if (CallsignSSID == "SPOT") {var html =  "<img src='icon.ico' style='vertical-align:bottom;padding:2'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + "</i><br/>" + Comment;}
-				else {var html =  "<img src='icon.ico' style='vertical-align:bottom;padding:2'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + " </i><br/>Altitude: " + Altitude + "m<br/>Speed: " + Speed + " km/h Course: " + Course + "°<br/>" + Comment;}
+				if (CallsignSSID == "SPOT") {var html = "<img src='favicon.ico' style='vertical-align:bottom;padding-left:2px;height:16px'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + "</i><br/>" + Comment;}
+				else {var html = "<img src='favicon.ico' style='vertical-align:bottom;padding-left:2px;height:16px'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + " </i><br/>Altitude: " + Altitude + "m<br/>Speed: " + Speed + " km/h Course: " + Course + "°<br/>" + Comment;}
 				var marker = new google.maps.Marker({
 						map: map,
 						position: point,
@@ -134,29 +129,22 @@
         infoWindow.open(map, marker);
       });
     }
-
     function downloadUrl(url, callback) {
       var request = window.ActiveXObject ?
           new ActiveXObject('Microsoft.XMLHTTP') :
           new XMLHttpRequest;
-
       request.onreadystatechange = function() {
         if (request.readyState == 4) {
           request.onreadystatechange = doNothing;
           callback(request, request.status);
         }
       };
-
       request.open('GET', url, true);
       request.send(null);
     }
-
     function doNothing() {}
-
     //]]>
-
   </script>
-
   <style>
       #floating-panel {
         position: absolute;
@@ -180,7 +168,6 @@
       }
   </style>
   </head>
-
   <body onload="load()" style="height: 100%; margin: 0px">
     <div id="map" style="width: 100%; height: 100%"></div>
     <div id="floating-panel">
@@ -206,5 +193,4 @@
   </select>
     </div>
   </body>
-
 </html>
