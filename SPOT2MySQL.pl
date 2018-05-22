@@ -32,14 +32,16 @@ while (1) {
     if (!$decoded->{response}->{errors}) {
     
       my $epoch = $decoded->{response}->{feedMessageResponse}->{messages}->{message}->{unixTime};
+      my $name = $decoded->{response}->{feedMessageResponse}->{messages}->{message}->{messengerName};
       my $longitude = $decoded->{response}->{feedMessageResponse}->{messages}->{message}->{longitude};
       my $latitude = $decoded->{response}->{feedMessageResponse}->{messages}->{message}->{latitude};
       my $messagetype = $decoded->{response}->{feedMessageResponse}->{messages}->{message}->{messageType};
       my $batterystate = $decoded->{response}->{feedMessageResponse}->{messages}->{message}->{batteryState};
+      my $packet = $decoded->{response}->{feedMessageResponse}->{messages}->{message}->{messageContent};
 
       my $dt = DateTime->from_epoch(epoch => $epoch, time_zone=>'America/Denver');
       print "$messagetype\n";
-      $query_aprsposits->execute($dt, "SPOT", $latitude, $longitude, undef, undef, undef, "/{", "$messagetype/BATTERY-$batterystate", undef);
+      $query_aprsposits->execute($dt, $name, $latitude, $longitude, undef, undef, undef, "/{", "$messagetype/BATTERY-$batterystate<br/>$packet", undef);
       system("php -f /home/APRS/markers.php > /var/www/html/markers.xml &");      
     }
   }
