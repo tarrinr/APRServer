@@ -1,69 +1,109 @@
 <!DOCTYPE html style="height: 100%">
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    
     <title>Live Map</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=APIKEY"
             type="text/javascript"></script>
     <script type="text/javascript">
     //<![CDATA[
-    function load(call) {
-		var map = new google.maps.Map(document.getElementById("map"), {
-			mapTypeId: 'roadmap'
-		});
-		var infoWindow = new google.maps.InfoWindow;
+			
+		//Globals
+		var infoWindow;
+		var path;
+		var customIcons;
+		var map;
+		var last;
 		var markers;
-	    	var pin;
+		var pin;
 		var currentlast;
-		var last = 0;
 		var length;
-		var flightPath = new google.maps.Polyline({
-			geodesic: true,
-			strokeColor: '#CC0000',
-			strokeOpacity: .5,
-			strokeWeight: 3
-		});
-		var path = flightPath.getPath();
-		flightPath.setMap(map);
-                var anchor = new google.maps.Point(16, 37);
-		var customIcons = {
-                        "/k": {
-                                url: 'icon/pickup.png',
-                                anchor: anchor
-                        },
-                        "/$": {
-                                url: 'icon/phones.png',
-                                anchor: anchor
-                        },
-                        "/#": {
-                                url: 'icon/radio-station-2.png',
-                                anchor: anchor
-                        },
-                        "/[": {
-                                url: 'icon/male-2.png',
-                                anchor: anchor
-                        },
-                        "/{": {
-                                url: 'icon/satellite-dish.png',
-                                anchor: anchor
-                        },
-                        "u": {
-                                url: 'icon/country.png',
-                                anchor: anchor
-                        },
-			"n": {
-				path: google.maps.SymbolPath.CIRCLE,
-				scale: 3,
-				fillOpacity: 1,
-				fillColor: '#CC0000',
-				strokeWeight: 0
-			}
-		};
-		mark();
-		setInterval(function() {mark()}, 5000);
-		function mark() {
+		var call;
+		var flightPath
 		
-			downloadUrl("markers.xml?" + Date.now(), function(data) {
+        function setup() {
+			console.log("Setting up...");
+			
+			//Info window setup
+			infoWindow = new google.maps.InfoWindow;
+			
+			//Path setup
+			flightPath = new google.maps.Polyline({
+				geodesic: true,
+				strokeColor: '#CC0000',
+				strokeOpacity: .5,
+				strokeWeight: 3
+			});
+			
+			//Icons setup
+			var anchor = new google.maps.Point(16, 37);
+			customIcons = {
+				"/k": {
+					url: 'https://APRServer.reactance.cc/icon/pickup.png',
+						anchor: anchor
+				},
+				"/$": {
+					url: 'https://APRServer.reactance.cc/icon/phones.png',
+					anchor: anchor
+				},
+				"/#": {
+					url: 'https://APRServer.reactance.cc/radio-station-2.png',
+					anchor: anchor
+				},
+				"/[": {
+					url: 'https://APRServer.reactance.cc/icon/male-2.png',
+					anchor: anchor
+				},
+				"/{": {
+					url: 'https://APRServer.reactance.cc/icon/satellite-dish.png',
+					anchor: anchor
+				},
+				"u": {
+					url: 'https://APRServer.reactance.cc/icon/country.png',
+					anchor: anchor
+				},
+				"n": {
+					path: google.maps.SymbolPath.CIRCLE,
+					scale: 3,
+					fillOpacity: 1,
+					fillColor: '#CC0000',
+					strokeWeight: 0
+				}
+			};
+			
+			//Start mark loop
+			setInterval(function() {refresh()}, 5000);
+			
+			//Initial load
+			load();
+        }
+		
+		function load(chan) {
+			console.log(chan);
+			
+			//Map setup
+			map = new google.maps.Map(document.getElementById('map'), {
+				zoom: 18,
+				gestureHandling: 'greedy',
+				mapTypeId: 'roadmap'
+			});
+			flightPath.setMap(map);
+			path = flightPath.getPath();
+			path.clear();
+
+			//Reset call
+			last = 0;
+			call = chan;
+			
+			//Refresh
+			refresh();
+		}
+			
+		function refresh() {
+			console.log("Refreshing...");
+			
+			downloadUrl("https://APRServer.reactance.cc/markers.xml?" + Date.now(), function(data) {
 			
 				var xml = data.responseXML;
 				markers = xml.documentElement.getElementsByTagName("marker");
@@ -78,101 +118,112 @@
 		}
 		
 		function update() {
-		        var first = true;
+			console.log("Updating...");
+			
+			var first = true;
 			for (var i = length; i > -1; i--) {
 			
 				var id = parseInt(markers[i].getAttribute("ID"));
 				if (id == last) {break;}
 				var ReportTime = markers[i].getAttribute("ReportTime");
 				var CallsignSSID = markers[i].getAttribute("CallsignSSID");
-                                document.getElementById(CallsignSSID).style = "display:inline;";
+				document.getElementById(CallsignSSID).style = "display:inline;";
+				if (call == undefined) {call = CallsignSSID; document.getElementById('chsel').value = CallsignSSID;}
 				if (CallsignSSID != call) {continue;}
 				var Altitude = markers[i].getAttribute("Altitude");
 				var Speed = markers[i].getAttribute("Speed");
 				var Course = markers[i].getAttribute("Course");
 				var Icon = markers[i].getAttribute("Icon");
 				var Comment = markers[i].getAttribute("Comment");
-				if (Comment[0] == 'P' && CallsignSSID == "SPOT") {continue;}
-				var Packet = markers[i].getAttribute("Packet");
 				var point = new google.maps.LatLng(
 					parseFloat(markers[i].getAttribute("Latitude")),
-					parseFloat(markers[i].getAttribute("Longitude")));
+					parseFloat(markers[i].getAttribute("Longitude"))
+				);
 				path.insertAt(length-i, point);
 				if (first == true) {
-						if (typeof pin != "undefined") {pin.setIcon(customIcons["n"]);}
-						map.panTo(point);
-						map.setZoom(18);
-						var icon = customIcons[Icon];
-                                                if (typeof icon == "undefined") {icon = customIcons["u"];}
+					if (typeof pin != "undefined") {pin.setIcon(customIcons["n"]);}
+					map.panTo(point);
+					map.setZoom(18);
+					var icon = customIcons[Icon];
+					if (typeof icon == "undefined") {icon = customIcons["u"];}
 				}
 				else {
-						var icon = customIcons["n"];
+					var icon = customIcons["n"];
 				}
-				if (CallsignSSID == "SPOT") {var html = "<img src='favicon.ico' style='vertical-align:bottom;padding-left:2px;height:16px'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + "</i><br/>" + Comment;}
-				else {var html = "<img src='favicon.ico' style='vertical-align:bottom;padding-left:2px;height:16px'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + " </i><br/>Altitude: " + Altitude + "m<br/>Speed: " + Speed + " km/h Course: " + Course + "°<br/>" + Comment;}
+				if (CallsignSSID == "SPOTTRACE" || CallsignSSID == "SPOTGEN3") {var html = "<img src='https://APRServer.reactance.cc/favicon.ico' style='vertical-align:bottom;padding-left:2px;height:16px'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + "</i><br/>" + Comment;}
+				else {var html = "<img src='https://APRServer.reactance.cc/favicon.ico' style='vertical-align:bottom;padding-left:2px;height:16px'/><b> " + CallsignSSID + "</b><br/><i>" + ReportTime + " </i><br/>Altitude: " + Altitude + "m<br/>Speed: " + Speed + " km/h Course: " + Course + "&deg;<br/>" + Comment;}
 				var marker = new google.maps.Marker({
-						map: map,
-						position: point,
-						icon: icon,
-						zIndex: id,
-						optimized: false
+					map: map,
+					position: point,
+					icon: icon,
+					zIndex: id,
+					optimized: false
 				});
 				if (first == true) {pin = marker; first = false;}
 				bindInfoWindow(marker, map, infoWindow, html);
 			}
 		}
-	}
 	
     function bindInfoWindow(marker, map, infoWindow, html) {
-      google.maps.event.addListener(marker, 'click', function() {
-        infoWindow.setContent(html);
-        infoWindow.open(map, marker);
-      });
+		google.maps.event.addListener(marker, 'click', function() {
+			infoWindow.setContent(html);
+			infoWindow.open(map, marker);
+		});
     }
+	
     function downloadUrl(url, callback) {
-      var request = window.ActiveXObject ?
-          new ActiveXObject('Microsoft.XMLHTTP') :
-          new XMLHttpRequest;
-      request.onreadystatechange = function() {
-        if (request.readyState == 4) {
-          request.onreadystatechange = doNothing;
-          callback(request, request.status);
-        }
-      };
-      request.open('GET', url, true);
-      request.send(null);
+		var request = window.ActiveXObject ?
+			new ActiveXObject('Microsoft.XMLHTTP') :
+			new XMLHttpRequest;
+			
+		request.onreadystatechange = function() {
+			if (request.readyState == 4) {
+				request.onreadystatechange = doNothing;
+				callback(request, request.status);
+			}
+		};
+		request.open('GET', url, true);
+		request.send(null);
     }
+	
     function doNothing() {}
     //]]>
+	
   </script>
   <style>
-      #floating-panel {
-        position: absolute;
-        bottom: 25px;
-        right: 50px;
-        z-index: 5;
+	#floating-panel {
+		position: absolute;
+		bottom: 24px;
+		right: 50px;
+        z-index: 0;
         background-color: #FFF;
         padding: 6px;
-	border-radius: 2px;
-	box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px;
-	cursor: pointer;
-      }
-      #floating-panel > select {
-        background-color:#FFF;
-	cursor:pointer;
-	border-color:#FFF;
-	font-family: Roboto,Arial,sans-serif;
-	font-size: 11px;
-	color: rgb(86, 86, 86);
-	outline:none;
-      }
+		border-radius: 2px;
+		box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+		cursor: pointer;
+                color: rgb(86, 86, 86);
+    }
+    #floating-panel:hover {
+        color: #000;
+        background-color: rgb(235,235,235);
+        z-index: 1000000;
+    }
+    #floating-panel > select {
+        background-color: inherit;
+		cursor:pointer;
+		border:0px;
+                font: 400 11px Roboto, Arial, sans-serif;
+                text-decoration: none;
+		outline:none;
+                color: inherit;
+    }
   </style>
   </head>
-  <body onload="load()" style="height: 100%; margin: 0px">
+  <body onload="setup()" style="height: 100%; margin: 0px">
     <div id="map" style="width: 100%; height: 100%"></div>
     <div id="floating-panel">
-  <select onchange="load(this.value)">
-    <option>Select Channel...</option>
+  <select id="chsel" onchange="load(this.value)">
+    <option style="display:none;">Loading...</option>
     <option value="KI7FTG" id="KI7FTG" style="display:none;">0 Primary Station</option>
     <option value="KI7FTG-1" id="KI7FTG-1" style="display:none;">1 Generic Station</option>
     <option value="KI7FTG-2" id="KI7FTG-2" style="display:none;">2 Generic Station</option>
@@ -189,7 +240,8 @@
     <option value="KI7FTG-13" id="KI7FTG-13" style="display:none;">13 Weather Station</option>
     <option value="KI7FTG-14" id="KI7FTG-14" style="display:none;">14 Freight Vehicle</option>
     <option value="KI7FTG-15" id="KI7FTG-15" style="display:none;">15 Generic Station</option>
-    <option value="SPOT" id="SPOT" style="display:none;">SPOT Tracker</option>
+    <option value="SPOTGEN3" id="SPOTGEN3" style="display:none;">SPOT GEN3</option>
+	<option value="SPOTTRACE" id="SPOTTRACE" style="display:none;">SPOT TRACE</option>
   </select>
     </div>
   </body>
