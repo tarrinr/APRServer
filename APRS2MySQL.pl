@@ -42,7 +42,7 @@ while (1){
       
       my $dt = DateTime->now(time_zone=>'America/Denver');
       print "$dt, $packetdata{origpacket}\n";
-      $query_aprsposits->execute($dt, $packetdata{srccallsign}, $packetdata{latitude}, $packetdata{longitude}, $packetdata{altitude}, $packetdata{speed}, $packetdata{course}, $packetdata{symboltable}.$packetdata{symbolcode}, $packetdata{comment}, $packetdata{origpacket});
+      $query_aprsposits->execute($dt, $packetdata{srccallsign}, $packetdata{latitude}, $packetdata{longitude}, $packetdata{altitude}, $packetdata{speed}, $packetdata{course}, $packetdata{symboltable}.$packetdata{symbolcode}, $packetdata{comment}, $packetdata{origpacket}) or die "Failed to execute: $DBI::errstr";
       system("php -f /home/APRS/markers.php > /var/www/html/markers.xml &");
 
     }
