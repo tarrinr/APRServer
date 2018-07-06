@@ -41,7 +41,7 @@ while (1) {
 
       my $dt = DateTime->from_epoch(epoch => $epoch, time_zone=>'America/Denver');
       print "$messagetype\n";
-      $query_aprsposits->execute($dt, $name, $latitude, $longitude, undef, undef, undef, "/{", "$messagetype/BATTERY-$batterystate<br/>$packet", undef);
+      $query_aprsposits->execute($dt, $name, $latitude, $longitude, undef, undef, undef, "/{", "$messagetype/BATTERY-$batterystate<br/>$packet", undef) or die "Failed to execute: $DBI::errstr";
       system("php -f /home/APRS/markers.php > /var/www/html/markers.xml &");      
     }
   }
